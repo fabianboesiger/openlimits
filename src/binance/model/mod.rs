@@ -95,6 +95,25 @@ pub struct OrderRequest {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct OcoRequest {
+    pub symbol: String,
+    #[serde(with = "string_to_decimal")]
+    pub quantity: Decimal,
+    #[serde(with = "string_to_decimal")]
+    pub price: Decimal,
+    #[serde(rename = "side")]
+    pub order_side: String,
+    #[serde(with = "string_to_decimal")]
+    pub stop_price: Decimal,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(with = "string_to_opt_decimal")]
+    pub stop_limit_price: Option<Decimal>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stop_limit_time_in_force: Option<TimeInForce>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct OrderCanceled {
     pub symbol: String,
     pub orig_client_order_id: String,

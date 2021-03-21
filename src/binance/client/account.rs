@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use super::BaseClient;
 use crate::{
     binance::model::{
-        AccountInformation, AllOrderReq, Balance, Order, OrderCanceled, OrderRequest, TimeInForce,
+        AccountInformation, AllOrderReq, Balance, Order, OrderCanceled, OrderRequest, OcoRequest, TimeInForce,
         TradeHistory, TradeHistoryReq, ORDER_SIDE_BUY, ORDER_SIDE_SELL, ORDER_TYPE_LIMIT,
         ORDER_TYPE_LIMIT_MAKER, ORDER_TYPE_MARKET,
     },
@@ -182,6 +182,88 @@ impl BaseClient {
             .transport
             .signed_post("/api/v3/order", Some(&sell))
             .await?;
+        Ok(transaction)
+    }
+
+    // Place an OCO order - BUY
+    pub async fn oco_buy(
+        &self,
+        pair: MarketPair,
+        qty: Decimal,
+        price: Decimal,
+        stop_price: Decimal,
+        stop_limit_price: Option<Decimal>,
+        stop_limit_time_in_force: Option<TimeInForce>,
+    ) -> Result<Order> {
+        let buy: OcoRequest = OcoRequest {
+            symbol: pair.symbol,
+            quantity: qty.round_dp(pair.base_increment.normalize().scale()),
+            price: price.round_dp_with_strategy(
+                pair.quote_increment.normalize().scale(),
+                RoundingStrategy::RoundDown,
+            ),
+            order_side: ORDER_SIDE_BUY.to_string(),
+            stop_price: stop_price.round_dp_with_strategy(
+                pair.quote_increment.normalize().scale(),
+                RoundingStrategy::RoundDown,
+            ),
+            stop_limit_price: if let Some(stop_limit_price) = stop_limit_price {
+                Some(stop_limit_price.round_dp_with_strategy(
+                    pair.quote_increment.normalize().scale(),
+                    RoundingStrategy::RoundDown,
+                ))
+            } else {
+                None
+            },
+            stop_limit_time_in_force,
+        };
+
+        let transaction = self
+            .transport
+            .signed_post("/api/v3/order/oco", Some(&buy))
+            .await?;
+
+        Ok(transaction)
+    }
+
+    // Place an OCO order - SELL
+    pub async fn oco_sell(
+        &self,
+        pair: MarketPair,
+        qty: Decimal,
+        price: Decimal,
+        stop_price: Decimal,
+        stop_limit_price: Option<Decimal>,
+        stop_limit_time_in_force: Option<TimeInForce>,
+    ) -> Result<Order> {
+        let buy: OcoRequest = OcoRequest {
+            symbol: pair.symbol,
+            quantity: qty.round_dp(pair.base_increment.normalize().scale()),
+            price: price.round_dp_with_strategy(
+                pair.quote_increment.normalize().scale(),
+                RoundingStrategy::RoundUp,
+            ),
+            order_side: ORDER_SIDE_SELL.to_string(),
+            stop_price: stop_price.round_dp_with_strategy(
+                pair.quote_increment.normalize().scale(),
+                RoundingStrategy::RoundUp,
+            ),
+            stop_limit_price: if let Some(stop_limit_price) = stop_limit_price {
+                Some(stop_limit_price.round_dp_with_strategy(
+                    pair.quote_increment.normalize().scale(),
+                    RoundingStrategy::RoundUp,
+                ))
+            } else {
+                None
+            },
+            stop_limit_time_in_force,
+        };
+
+        let transaction = self
+            .transport
+            .signed_post("/api/v3/order/oco", Some(&buy))
+            .await?;
+
         Ok(transaction)
     }
 
