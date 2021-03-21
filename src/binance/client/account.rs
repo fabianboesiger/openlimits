@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use super::BaseClient;
 use crate::{
     binance::model::{
-        AccountInformation, AllOrderReq, Balance, Order, OrderCanceled, OrderRequest, OcoRequest, TimeInForce,
+        AccountInformation, AllOrderReq, Balance, Order, Oco, OrderCanceled, OrderRequest, OcoRequest, TimeInForce,
         TradeHistory, TradeHistoryReq, ORDER_SIDE_BUY, ORDER_SIDE_SELL, ORDER_TYPE_LIMIT,
         ORDER_TYPE_LIMIT_MAKER, ORDER_TYPE_MARKET,
     },
@@ -194,7 +194,7 @@ impl BaseClient {
         stop_price: Decimal,
         stop_limit_price: Option<Decimal>,
         stop_limit_time_in_force: Option<TimeInForce>,
-    ) -> Result<Order> {
+    ) -> Result<Oco> {
         let buy: OcoRequest = OcoRequest {
             symbol: pair.symbol,
             quantity: qty.round_dp(pair.base_increment.normalize().scale()),
@@ -235,7 +235,7 @@ impl BaseClient {
         stop_price: Decimal,
         stop_limit_price: Option<Decimal>,
         stop_limit_time_in_force: Option<TimeInForce>,
-    ) -> Result<Order> {
+    ) -> Result<Oco> {
         let buy: OcoRequest = OcoRequest {
             symbol: pair.symbol,
             quantity: qty.round_dp(pair.base_increment.normalize().scale()),

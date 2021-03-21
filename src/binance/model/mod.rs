@@ -95,6 +95,11 @@ pub struct OrderRequest {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct Oco {
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct OcoRequest {
     pub symbol: String,
     #[serde(with = "string_to_decimal")]
