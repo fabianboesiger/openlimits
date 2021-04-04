@@ -96,6 +96,8 @@ pub struct OrderRequest {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Oco {
+    pub order_list_id: u64,
+    pub order_reports: Vec<Order>
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
